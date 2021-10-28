@@ -46,4 +46,4 @@ Run the code in two ways:
 a) run the gradle command on terminal that’s gonna run the task ‘execute’
        ./gradlew clean execute
 
-b) run the class FileReadingSolution that have main() method.
+b) run the class readtextfiles.FileReadingSolution that have main() method.

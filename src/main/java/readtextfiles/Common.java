@@ -5,16 +5,16 @@ package readtextfiles;
  *
  * @author Pooja Singla
  */
-class Common
+public class Common
 {
     static StringBuilder sb = new StringBuilder();
 
-    static String getPathToTargetFile(String[] args)
+    public static String getPathToTargetFile(String[] args)
     {
         if (args.length >= 1)
         {
             return args[0];
         }
-        return "/Users/poojasingla/text.txt";
+        return "src/test/resources/text.txt";
     }
 }
