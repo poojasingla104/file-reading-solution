@@ -1,49 +1,43 @@
-# file-reading-solution
-
-Java 8 introduced the CompletableFuture class. Along with the Future interface, it also implemented the CompletionStage interface. This interface defines the contract for an asynchronous computation step that we can combine with other steps.
-
-A CompltableFuture is used for asynchronous programming. Asynchronous programming means writing non-blocking code. It runs a task on a separate thread than the main application thread and notifies the main thread about its progress, completion or failure.
-In this way, the main thread does not block or wait for the completion of the task. Other tasks execute in parallel. Parallelism improves the performance of the program.
-A CompletableFuture is a class in Java. It belongs to java.util.concurrent package. It
-implements CompletionStage and Future interface.
-
-1.A CompletableFuture is executed asynchronously when the method typically ends with the keyword Async
-2.By default (when no Executor is specified), asynchronous execution uses the common ForkJoinPool implementation, which uses daemon threads to execute the Runnable task. Note that this is specific to CompletableFuture. Other CompletionStage implementations can override the default behavior.
+Approach: Below are the highlights of the approach used:
 
 
-How to read a Large File Efficiently with Java:
+Custom LineIterator for large file parsing: For streaming Through the file, java.util.Scanner is used to run through the contents of the file and retrieve lines serially, one by one without keeping them in memory.  This allows for processing of each line without keeping references to them and avoids out-of-memory exception which can happen in the case of a large file. Alternatively, this can be done using Streaming With Apache Commons IO library as well, by using the custom LineIterator.
 
-a) The standard way of reading the lines of the file is in memory – both Guava and Apache Commons IO provide a quick way to do just that:
-Files.readLines(new File(path), Charsets.UTF_8);
-FileUtils.readLines(new File(path));
+Asynchronous programming: Asynchronous programming is used for writing non-blocking code. It is implemented using CompltableFuture class introduced in Java 8 which implements the CompletionStage interface.  It runs a task on a separate thread than the main application thread and notifies the main thread about its progress, completion, or failure. In this way, the main thread does not block or wait for the completion of the task. Other tasks execute in parallel. Parallelism improves the performance of the program. 
 
-The problem with this approach is that all the file lines are kept in memory – which will quickly lead to OutOfMemoryError if the File is large enough.
-
-b) Streaming Through the File
-we're going to use a java.util.Scanner to run through the contents of the file and retrieve lines serially, one by one.
-This solution will iterate through all the lines in the file – allowing for processing of each line – without keeping references to them – and in conclusion, without keeping them in memory
-
-c) Streaming With Apache Commons IO
-The same can be achieved using the Commons IO library as well, by using the custom LineIterator provided by the library
-Since the entire file is not fully in memory – this will also result in pretty conservative memory consumption numbers: 
-
-So here I am using custom LineIterator for parsing the text file
+Use of Hashmap: Hashmap is used for efficiently looking up the individual log and once “finished” is found, the same is removed and moved to DB from Hashmap to keep it light.
 
 
-Setting required before running the code:
+High-level Workflow:
 
-a) Download latest from HSQLDB. Extract the .zip file in folder as shown below: 
-b) Add HSQLDB Jar file to your project classpath.
+Step1: LineIterator reads the file, line by line, and spawns a separate task/fiber using CompltableFuture class.
+
+Step2: Each fiber will run in a separate thread and parse it into JSON format, store it into a separate class which is stored in the Map with event ID as the key.
+
+Step3: While reading each line, Map is checked for the existence of the key, and if present, time is calculated and flagged if more than 4 minutes, and it will be removed from the map and moved to DB. 
+
+The longest-running event is also tracked as needed by the requirement and shared once the parsing is complete.
+
+
+Setup to run the code:
+
+a) Download the latest from HSQLDB. Extract the .zip file in the folder. 
+
+b) Add HSQLDB Jar file to your project classpath.
+ 
 c) Run the below steps on DB:
 
-create the setting with sampledb and set the password as ‘SA’ and then run the below commands
-java -cp ../lib/hsqldb-jdk8.jar org.hsqldb.server.Server --database.0 file:sampledb/sampledb --dbname.0 sampledb
-java -cp hsqldb-jdk8.jar org.hsqldb.util.DatabaseManagerSwing
-
+   i) create the setting with sampledb and set the password as ‘SA’ and then run the below commands 
+   
+   ii) java -cp ../lib/hsqldb-jdk8.jar org.hsqldb.server.Server --database.0 file:sampledb/sampledb --dbname.0 sampledb 
+   
+   iii) java -cp hsqldb-jdk8.jar org.hsqldb.util.DatabaseManagerSwing
+   
 
 Run the code in two ways:
 
-a) run the gradle command on terminal that’s gonna run the task ‘execute’
-       ./gradlew clean execute
+a) run the below gradle command on terminal that’s gonna run the task ‘execute’       
+ 
+ ./gradlew clean execute
 
-b) run the class readtextfiles.FileReadingSolution that have main() method.
+b) run the class FileRead that have main() method.

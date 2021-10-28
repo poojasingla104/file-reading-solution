@@ -5,7 +5,7 @@ package readtextfiles;
  *
  * @author Pooja Singla
  */
-public class EventDetailsClass
+public class EventDetails
 {
     private String id;
     private String state;
@@ -13,7 +13,7 @@ public class EventDetailsClass
     private String host;
     private long timestamp;
 
-    public EventDetailsClass(String id, String state, String type, String host, long timestamp)
+    public EventDetails(String id, String state, String type, String host, long timestamp)
     {
         this.id = id;
         this.state = state;
@@ -23,7 +23,7 @@ public class EventDetailsClass
     }
 
     //default constructor
-    public EventDetailsClass()
+    public EventDetails()
     {
 
     }

@@ -21,9 +21,9 @@ public class StoreEventDetails
 {
     private static final Logger logger = LoggerFactory.getLogger(StoreEventDetails.class);
 
-    private EventDetailsClass eventDetails = new EventDetailsClass();
-    private static ConcurrentHashMap<String, EventDetailsClass> eventDetailsMap = new ConcurrentHashMap<>();
-    private static Map<String, EventDetailsClass> timeStamps = new HashMap();
+    private EventDetails eventDetails = new EventDetails();
+    private static ConcurrentHashMap<String, EventDetails> eventDetailsMap = new ConcurrentHashMap<>();
+    private static Map<String, EventDetails> timeStamps = new HashMap();
     private static long maxDiff = -1;
     private static String longestEvent;
     private static final String insertTableSQL =
@@ -34,7 +34,7 @@ public class StoreEventDetails
      */
     public void storeEventDetails(String json) throws IOException, SQLException
     {
-        EventDetailsClass response = SerializationUtil.convertJsonToPOJO(json, EventDetailsClass.class);
+        EventDetails response = SerializationUtil.convertJsonToPOJO(json, EventDetails.class);
         if (response.getId() != null)
         {
             eventDetails.setId(response.getId());
@@ -58,27 +58,28 @@ public class StoreEventDetails
     private void storeIntoMapAndDB() throws SQLException
     {
         long diff = 0;
-        EventDetailsClass val = eventDetailsMap.getOrDefault(eventDetails.getId(),
-                new EventDetailsClass("1", null, null, null, 0));
+        EventDetails val = eventDetailsMap.getOrDefault(eventDetails.getId(),
+                new EventDetails("1", null, null, null, 0));
 
         if (val.getId().equals("1"))
         {
             eventDetailsMap.put(eventDetails.getId(),
-                    new EventDetailsClass(eventDetails.getId(), eventDetails.getState(), eventDetails.getType(),
+                    new EventDetails(eventDetails.getId(), eventDetails.getState(), eventDetails.getType(),
                                                  eventDetails.getHost(), eventDetails.getTimestamp()));
         }
         else if (val.getState().equalsIgnoreCase(eventDetails.getState()))
         {
+            logger.info("Handling the error case if the same event state gets repeated {} for id: ", eventDetails.getId());
             eventDetailsMap.put(eventDetails.getId(),
-                    new EventDetailsClass(eventDetails.getId(), eventDetails.getState(), eventDetails.getType(),
+                    new EventDetails(eventDetails.getId(), eventDetails.getState(), eventDetails.getType(),
                                                  eventDetails.getHost(), eventDetails.getTimestamp()));
         }
         else
         {
-            timeStamps.put(val.getId(), new EventDetailsClass(val.getId(), val.getState(), val.getType(), val.getHost(),
+            timeStamps.put(val.getId(), new EventDetails(val.getId(), val.getState(), val.getType(), val.getHost(),
                                                                      val.getTimestamp()));
             eventDetailsMap.put(eventDetails.getId(),
-                    new EventDetailsClass(eventDetails.getId(), eventDetails.getState(), eventDetails.getType(),
+                    new EventDetails(eventDetails.getId(), eventDetails.getState(), eventDetails.getType(),
                                                  eventDetails.getHost(), eventDetails.getTimestamp()));
             diff = calTimeStampsDiff(timeStamps, eventDetailsMap);
 
@@ -144,11 +145,11 @@ public class StoreEventDetails
      * @param map2 map2
      * @return
      */
-    private long calTimeStampsDiff(Map<String, EventDetailsClass> map1, Map<String, EventDetailsClass> map2)
+    private long calTimeStampsDiff(Map<String, EventDetails> map1, Map<String, EventDetails> map2)
     {
         long smallTS = 0;
         long bigllTS = 0;
-        for (Map.Entry<String, EventDetailsClass> entry : map1.entrySet())
+        for (Map.Entry<String, EventDetails> entry : map1.entrySet())
         {
 
             // Check if the current key exists in the 2nd map

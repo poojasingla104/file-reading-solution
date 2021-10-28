@@ -22,9 +22,9 @@ import static readtextfiles.StoreEventDetails.returnMax;
  *
  * @author Pooja Singla
  */
-public class FileReadingSolution
+public class FileRead
 {
-    private static final Logger logger = LoggerFactory.getLogger(FileReadingSolution.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileRead.class);
 
     private static int resultsToWaitFor = 0;
 
